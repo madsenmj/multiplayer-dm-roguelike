@@ -1,7 +1,11 @@
 {
   "name": "multiplayer-dm-roguelike",
   "version": "0.0.1",
-  "private": true,
+  "description": "A sample Node.js app using Express 4",
+  "engines": {
+    "node": "8.9.1"
+  },
+  "main": "app.js",
   "scripts": {
     "start": "node ./bin/www"
   },
@@ -13,5 +17,21 @@
     "jade": "~1.11.0",
     "morgan": "~1.9.0",
     "serve-favicon": "~2.4.5"
-  }
+  },
+  "devDependencies": {
+    "request": "^2.81.0",
+    "tape": "^4.7.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/madsenmj/multiplayer-dm-roguelike"
+  },
+  "keywords": [
+    "node",
+    "heroku",
+    "express"
+  ],
+  "license": "MIT"
 }
+
+
