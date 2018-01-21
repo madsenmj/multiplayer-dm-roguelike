@@ -1,15 +1,17 @@
+
 var Game = {
     display: null,
-
+    map:{},
+    freeCells:[],
+    playerMap:{},
     init: function() {
         this.display = new ROT.Display();
         document.getElementById("game").appendChild(this.display.getContainer());
 
         this._generateMap();
+        Client.askNewPlayer();
     }
 }
-
-Game.map = {};
 
 Game._generateMap = function() {
     var digger = new ROT.Map.Digger();
@@ -18,6 +20,7 @@ Game._generateMap = function() {
         if (value) { return; } /* do not store walls */
  
         var key = x+","+y;
+        this.freeCells.push(key);
         this.map[key] = ".";
     }
     digger.create(digCallback.bind(this));
@@ -35,3 +38,28 @@ Game._drawWholeMap = function() {
 }
 
 Game.init();
+
+Game.addNewPlayer = function(id,x,y,color){
+    this.playerMap[id] = new Player(x, y,color);
+
+};
+
+var Player = function(x, y,color) {
+    this._x = x;
+    this._y = y;
+    this._color = color;
+    this._draw();
+};
+
+Player.destroy = function(){
+    Game.display.draw(this._x, this._y, "X", "#ff0000");
+};
+ 
+Player.prototype._draw = function() {
+    Game.display.draw(this._x, this._y, "@", this._color);
+};
+
+Game.removePlayer = function(id){
+    Game.playerMap[id].destroy();
+    delete Game.playerMap[id];
+};
