@@ -58,9 +58,17 @@ io.on('connection',function(socket){
         socket.emit('allplayers',getAllPlayers());
         socket.broadcast.emit('newplayer',socket.player);
 
+        socket.on('move',function(data){
+            console.log('move '+data.x+', '+data.y);
+            socket.player.x += data.x;
+            socket.player.y += data.y;
+            io.emit('move',socket.player);
+        });
+
         socket.on('disconnect',function(){
             io.emit('remove',socket.player.id);
         });
+
     });
 });
 
