@@ -1,9 +1,11 @@
+"use strict";
+
 var express = require('express');
 var app = express();
 var server = require('http').Server(app);
 var io = require('socket.io').listen(server);
 var randomColor = require('randomcolor'); // import the script 
-
+var gameserver = require('./js/gameserver');
 
 var port = normalizePort(process.env.PORT || '3000');
 app.set('port', port);
@@ -28,49 +30,107 @@ function normalizePort(val) {
     return false;
   }
 
-app.use('/css',express.static(__dirname + '/css'));
+
 app.use('/js',express.static(__dirname + '/js'));
-app.use('/assets',express.static(__dirname + '/assets'));
 
 app.get('/',function(req,res){
     res.sendFile(__dirname+'/index.html');
 });
 
-
 server.listen(port,function(){ 
     console.log('Listening on '+server.address().port);
 });
 
+/*
 
-/* Handling Players */
-server.lastPlayderID = 0; // Keep track of the last id assigned to a new player
+ROTObject Class
 
+*/
+function ROTObject(x, y, char, color){
+        this._x = x;
+        this._y = y;
+        this._char = char;
+        this._color = color;
+}
+
+ROTObject.prototype.move = function (dx, dy){
+    this._x += dx;
+    this._y += dy;
+}
+
+ROTObject.prototype.get_data = function(){
+    return {x:this._x, y:this._y, ch:this._char, co:this._color}
+}
+
+/*
+
+ROTMap Class
+
+*/
+
+function ROTMap(){
+    this._tiles = new Object();
+}
+
+ROTMap.prototype.add_character = function(id, rotobject){
+    this._tiles[id] = rotobject;
+}
+
+ROTMap.prototype.get_tiles = function(){
+    var tilelist = [];
+    for (var id in this._tiles){
+        tilelist.push(this._tiles[id].get_data());
+    }
+    return tilelist
+}
+
+ROTMap.prototype.get_tile = function(id){
+    return this._tiles[id]
+}
+
+ROTMap.prototype.remove_object = function(id){
+    delete this._tiles[id];
+}
+
+
+/*
+
+Handling Interactions
+
+*/
+
+var rotmap = new ROTMap();
 io.on('connection',function(socket){
+
     socket.on('newplayer',function(){
-        socket.player = {
-            id: server.lastPlayderID++,
-            x: randomInt(0,80),
-            y: randomInt(0,25),
-            color: randomColor({
-                luminosity: 'light'}) // a hex code for an attractive color 
-        };
-
-        socket.emit('allplayers',getAllPlayers());
-        socket.broadcast.emit('newplayer',socket.player);
-
-        socket.on('move',function(data){
-            console.log('move '+data.x+', '+data.y);
-            socket.player.x += data.x;
-            socket.player.y += data.y;
-            io.emit('move',socket.player);
-        });
-
-        socket.on('disconnect',function(){
-            io.emit('remove',socket.player.id);
-        });
-
+        rotmap.add_character(
+            socket.id,
+            new ROTObject(
+                randomInt(0, 80),
+                randomInt(0, 23),
+                "@",
+                randomColor()
+            )
+        );
     });
+
+
+    socket.on('move',function(data){
+        var tile = rotmap.get_tile(socket.id) || {};
+        console.log(socket.id + ' move '+data.x+', '+data.y);
+        tile.move(data.x, data.y);
+    });
+
+    socket.on('disconnect',function(){
+        rotmap.remove_object(socket.id);
+    });
+    
+
 });
+
+setInterval(function(){
+    io.sockets.emit('state',rotmap.get_tiles());
+}, 1000/60);
 
 function getAllPlayers(){
     var players = [];
@@ -84,4 +144,5 @@ function getAllPlayers(){
 function randomInt (low, high) {
     return Math.floor(Math.random() * (high - low) + low);
 }
+
 

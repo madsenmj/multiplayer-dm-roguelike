@@ -1,91 +1,64 @@
+var socket = io();
 
-var Game = {
-    display: null,
-    map:{},
-    freeCells:[],
-    playerMap:{},
-    init: function() {
-        this.display = new ROT.Display();
-        document.getElementById("game").appendChild(this.display.getContainer());
-
-        this._generateMap();
-        Client.askNewPlayer();
-    }
+var options = {
+  width: ROT.DEFAULT_WIDTH,
+  height: ROT.DEFAULT_HEIGHT,
+  fontSize: 18,
+  forceSquareRatio:true
 }
+var display = new ROT.Display(options);
 
-Game._generateMap = function() {
-    /*
-    var digger = new ROT.Map.Digger();
-    var digCallback = function(x, y, value) {
-        if (value) { return; } //do not store walls
- 
-        var key = x+","+y;
-        this.freeCells.push(key);
-        this.map[key] = ".";
-    }
-    digger.create(digCallback.bind(this));
-    */
-    for(var ix=0; ix<ROT.DEFAULT_WIDTH; ++ix) {
-        for(var iy=0; iy<ROT.DEFAULT_HEIGHT; ++iy) {
-            var key = ix+","+iy;
-            this.map[key] = ".";
-        }
+var display = new ROT.Display();
+document.getElementById("game").appendChild(display.getContainer());
+
+socket.on('state', function(players){
+    display.clear()
+    for (var id in players){
+        var player = players[id];
+        //console.log(player.x + ',' + player.y);
+        display.draw(player.x, player.y, "@", player.color);
     }
 
+});
 
-    this._drawWholeMap();
-}
 
-Game._drawWholeMap = function() {
-    for (var key in this.map) {
-        var parts = key.split(",");
-        var x = parseInt(parts[0]);
-        var y = parseInt(parts[1]);
-        this.display.draw(x, y, this.map[key]);
+// Handling Keyboard Inputs
+
+var dirToVector = {};
+dirToVector[ROT.VK_NUMPAD4] = { x:-1, y:0};
+dirToVector[ROT.VK_NUMPAD6] = { x:1, y:0};
+dirToVector[ROT.VK_NUMPAD8] = { x:0, y:-1};
+dirToVector[ROT.VK_NUMPAD2] = { x:0, y:1};
+dirToVector[ROT.VK_NUMPAD7] = { x:-1, y:-1};
+dirToVector[ROT.VK_NUMPAD9] = { x:1, y:-1};
+dirToVector[ROT.VK_NUMPAD1] = { x:-1, y:1};
+dirToVector[ROT.VK_NUMPAD3] = { x:1, y:1};
+
+// Concise list of commands
+var interpreters = {}
+for (moveKey in dirToVector) {
+    interpreters[moveKey] = (function (key) {
+        return function () { socket.emit("move", dirToVector[key]); }
+      })(moveKey);
+  };
+
+// Default key interpreting function
+var defaultInterpreter = function (key) {
+    if (key in interpreters) {
+      interpreters[key]();
     }
-}
+  };
+  
+// Currently active callback
+var interpCallback = defaultInterpreter;
+  
+window.addEventListener("keydown", function (e) {
+    var code = e.keyCode;
+    interpCallback(code);
+  });
 
-Game.init();
+socket.emit('newplayer');
 
-Game.addNewPlayer = function(id,x,y,color){
-    this.playerMap[id] = new Player(x, y,color);
-
-};
-
-var Player = function(x, y,color) {
-    this._x = x;
-    this._y = y;
-    this._color = color;
-    this._draw();
-};
-
-Player.destroy = function(){
-    Game.display.draw(this._x, this._y, "X", "#ff0000");
-};
- 
-Player.prototype._draw = function() {
-    console.log('Drawing Player')
-    Game.display.draw(this._x, this._y, "@", this._color);
-};
-
-
-Game.movePlayer = function(id,newX,newY){
-    var player = Game.playerMap[id];
-    console.log('Trying to move to ' +newX+', '+newY)
-    var newKey = newX + "," + newY;
-    if (!(newKey in this.map)) { console.log("can't move here"); return; } /* cannot move in this direction */
-    
-    console.log('Redrawing Map')
-    this.display.draw(player._x, player._y, this.map[player._x+","+player._y]);
-    
-    player._x = newX;
-    player._y = newY;
-    player._draw();
-};
-
-
-Game.removePlayer = function(id){
-    Game.playerMap[id].destroy();
-    delete Game.playerMap[id];
-};
-
+socket.on('message', function(data) {
+  console.log(data);
+});

@@ -1,27 +1,27 @@
-var Client = {};
-Client.socket = io.connect();
+var socket = io();
 
-Client.askNewPlayer = function(){
-    Client.socket.emit('newplayer');
-};
+var options = {
+  width: ROT.DEFAULT_WIDTH,
+  height: ROT.DEFAULT_HEIGHT,
+  fontSize: 18,
+  forceSquareRatio:true
+}
+var display = new ROT.Display(options);
 
-Client.socket.on('newplayer',function(data){
-    Game.addNewPlayer(data.id,data.x,data.y);
-});
+var display = new ROT.Display();
+document.getElementById("game").appendChild(display.getContainer());
 
-Client.socket.on('allplayers',function(data){
-    console.log(data);
-    for(var i = 0; i < data.length; i++){
-        Game.addNewPlayer(data[i].id,data[i].x,data[i].y);
+function printTile(tile){
+    display.draw(tile.x, tile.y, tile.ch, tile.co);
+}
+
+socket.on('state', function(tiles){
+    display.clear();
+    console.log(tiles);
+    for (var id in tiles){
+        var tile = tiles[id];
+        printTile(tile);
     }
-});
-
-Client.socket.on('move',function(data){
-    Game.movePlayer(data.id,data.x,data.y);
-});
-
-Client.socket.on('remove',function(id){
-    Game.removePlayer(id);
 });
 
 
@@ -41,7 +41,7 @@ dirToVector[ROT.VK_NUMPAD3] = { x:1, y:1};
 var interpreters = {}
 for (moveKey in dirToVector) {
     interpreters[moveKey] = (function (key) {
-        return function () { Client.socket.emit("move", dirToVector[key]); }
+        return function () { socket.emit("move", dirToVector[key]); }
       })(moveKey);
   };
 
@@ -55,9 +55,13 @@ var defaultInterpreter = function (key) {
 // Currently active callback
 var interpCallback = defaultInterpreter;
   
-
-
 window.addEventListener("keydown", function (e) {
     var code = e.keyCode;
     interpCallback(code);
   });
+
+socket.emit('newplayer');
+
+socket.on('message', function(data) {
+  console.log(data);
+});
