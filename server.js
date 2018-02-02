@@ -102,14 +102,14 @@ Handling Interactions
 var rotmap = new ROTMap();
 io.on('connection',function(socket){
 
-    socket.on('newplayer',function(){
+    socket.on('newplayer',function(playerInit){
         rotmap.add_character(
             socket.id,
             new ROTObject(
                 randomInt(0, 80),
                 randomInt(0, 23),
                 "@",
-                randomColor()
+                playerInit.color
             )
         );
     });
