@@ -1,7 +1,9 @@
+var socket = io();
+
+
+
+
 var beginGame = function(){
-
-  var socket = io();
-
 
   var options = {
     width: ROT.DEFAULT_WIDTH,
@@ -26,7 +28,7 @@ var beginGame = function(){
 
   socket.on('state', function(tiles){
       display.clear();
-      console.log(tiles);
+      //console.log(tiles);
       for (var id in tiles){
           var tile = tiles[id];
           printTile(tile);
@@ -75,12 +77,93 @@ var beginGame = function(){
       interpCallback(code);
     });
 
-  socket.on('message', function(data) {
-    console.log(data);
-  });
+  /*
+
+  Handling Swipes on Touch Devices
+
+  */
+
+  var el = document.getElementById('game')
+  swipedetect(el, function(swipedir){
+      //swipedir contains either a ROT key or 'none'
+      if (swipedir != 'none'){
+        socket.emit("move", dirToVector[swipedir]);
+      }
+
+  })
+
+  function swipedetect(el, callback){
+    
+    var touchsurface = el,
+    swipedir,
+    startX,
+    startY,
+    distX,
+    distY,
+    threshold = 150, //required min distance traveled to be considered swipe
+    restraint = 100, // maximum distance allowed at the same time in perpendicular direction
+    allowedTime = 300, // maximum time allowed to travel that distance
+    elapsedTime,
+    startTime,
+    handleswipe = callback || function(swipedir){}
+
+    touchsurface.addEventListener('touchstart', function(e){
+        var touchobj = e.changedTouches[0];
+        swipedir = 'none';
+        dist = 0;
+        startX = touchobj.pageX;
+        startY = touchobj.pageY;
+        startTime = new Date().getTime(); // record time when finger first makes contact with surface
+        e.preventDefault();
+    }, false);
+
+    touchsurface.addEventListener('touchmove', function(e){
+        e.preventDefault(); // prevent scrolling when inside DIV
+    }, false);
+
+    touchsurface.addEventListener('touchend', function(e){
+        var touchobj = e.changedTouches[0];
+        distX = touchobj.pageX - startX; // get horizontal dist traveled by finger while in contact with surface
+        distY = touchobj.pageY - startY; // get vertical dist traveled by finger while in contact with surface
+        elapsedTime = new Date().getTime() - startTime; // get time elapsed
+        if (elapsedTime <= allowedTime){ // first condition for awipe met
+            if (Math.abs(distX) >= threshold && Math.abs(distY) <= restraint){ // 2nd condition for horizontal swipe met
+                swipedir = (distX < 0)? ROT.VK_NUMPAD4 : ROT.VK_NUMPAD6; // if dist traveled is negative, it indicates left swipe
+            }
+            else if (Math.abs(distY) >= threshold && Math.abs(distX) <= restraint){ // 2nd condition for vertical swipe met
+                swipedir = (distY < 0)? ROT.VK_NUMPAD8 : ROT.VK_NUMPAD2; // if dist traveled is negative, it indicates up swipe
+            }
+            else if (Math.abs(distY) >= 0.71*threshold && Math.abs(distX) >= 0.71*threshold){ //Diagonal
+              if (distY < 0){
+                swipedir = (distX < 0)? ROT.VK_NUMPAD7:ROT.VK_NUMPAD9;
+              } 
+              else if (distY > 0){
+                swipedir = (distX < 0)? ROT.VK_NUMPAD1:ROT.VK_NUMPAD3;
+              } 
+              
+            }
+            //console.log(distY + ',' + distX);
+          }
+        handleswipe(swipedir);
+        e.preventDefault();
+    }, false)
+  }
 
 
 };
+
+// Handling chat messages
+$(function () {
+  var socket = io();
+  $('form').submit(function(){
+    socket.emit('chat message', $('#m').val());
+    $('#m').val('');
+    return false;
+  });
+  socket.on('chat message', function(msg){
+    $('#messages').append($('<li>').text(msg));
+  });
+});
 
 
 
