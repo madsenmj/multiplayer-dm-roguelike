@@ -606,17 +606,9 @@ var colorhex = "#FF0000";
 var color = "#FF0000";
 var colorObj = w3color(color);
 function mouseOverColor(hex) {
-    document.getElementById("divpreview").style.visibility = "visible";
-    document.getElementById("divpreview").style.backgroundColor = hex;
     document.body.style.cursor = "pointer";
 }
 function mouseOutMap() {
-    if (hh == 0) {
-        document.getElementById("divpreview").style.visibility = "hidden";
-    } else {
-        hh = 0;
-    }
-    document.getElementById("divpreview").style.backgroundColor = colorObj.toHexString();
     document.body.style.cursor = "";
 }
 var hh = 0;
@@ -630,7 +622,6 @@ function clickColor(hex, seltop, selleft, html5) {
         document.getElementById("selectedhexagon").style.visibility="visible";
         document.getElementById("selectedhexagon").style.backgroundColor = cObj.toHexString();
     } else {
-        document.getElementById("divpreview").style.backgroundColor = cObj.toHexString();
         document.getElementById("selectedhexagon").style.visibility = "hidden";
     }
 }
