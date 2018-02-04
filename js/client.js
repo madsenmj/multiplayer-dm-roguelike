@@ -100,7 +100,7 @@ var beginGame = function(){
     startY,
     distX,
     distY,
-    threshold = 50, //required min distance traveled to be considered swipe
+    threshold = 30, //required min distance traveled to be considered swipe
     restraint = 10, // maximum distance allowed at the same time in perpendicular direction
     allowedTime = 300, // maximum time allowed to travel that distance
     elapsedTime,
