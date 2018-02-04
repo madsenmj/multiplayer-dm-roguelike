@@ -1,4 +1,3 @@
-
 var beginGame = function(){
 
   var socket = io();
@@ -13,10 +12,10 @@ var beginGame = function(){
   var display = new ROT.Display(options);
 
   var display = new ROT.Display();
-  document.getElementById("inputs").style.visibility = "hidden";
+  document.getElementById("inputs").style.display = "none";
   document.getElementById("game").appendChild(display.getContainer());
   
-  var playerInit = {color:document.getElementById("playerColor").value};
+  var playerInit = {color:document.getElementById("selectedhexagon").style.backgroundColor};
 
   socket.emit('newplayer', playerInit);
 
@@ -46,6 +45,12 @@ var beginGame = function(){
   dirToVector[ROT.VK_NUMPAD9] = { x:1, y:-1};
   dirToVector[ROT.VK_NUMPAD1] = { x:-1, y:1};
   dirToVector[ROT.VK_NUMPAD3] = { x:1, y:1};
+
+  dirToVector[ROT.VK_UP] = { x:0, y:-1};
+  dirToVector[ROT.VK_DOWN] = { x:0, y:1};
+  dirToVector[ROT.VK_LEFT] = { x:-1, y:0};
+  dirToVector[ROT.VK_RIGHT] = { x:1, y:0};
+
 
   // Concise list of commands
   var interpreters = {}
