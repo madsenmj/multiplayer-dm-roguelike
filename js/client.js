@@ -151,6 +151,16 @@ var beginGame = function(){
 
 
   // Working with virtual numpad
+  document.getElementById("num1").addEventListener("touchstart",preventZoom);
+  document.getElementById("num2").addEventListener("touchstart",preventZoom);
+  document.getElementById("num3").addEventListener("touchstart",preventZoom);
+  document.getElementById("num4").addEventListener("touchstart",preventZoom);
+  document.getElementById("num5").addEventListener("touchstart",preventZoom);
+  document.getElementById("num6").addEventListener("touchstart",preventZoom);
+  document.getElementById("num7").addEventListener("touchstart",preventZoom);
+  document.getElementById("num8").addEventListener("touchstart",preventZoom);
+  document.getElementById("num9").addEventListener("touchstart",preventZoom);
+
   document.getElementById("num1").addEventListener("click", function(){
     interpCallback(ROT.VK_NUMPAD1);
   });
@@ -194,21 +204,15 @@ $(function () {
 });
 
 
-(function($) {
-  var IS_IOS = /iphone|ipad/i.test(navigator.userAgent);
-  $.fn.nodoubletapzoom = function() {
-    if (IS_IOS)
-      $(this).bind('touchstart', function preventZoom(e) {
-        var t2 = e.timeStamp
-          , t1 = $(this).data('lastTouch') || t2
-          , dt = t2 - t1
-          , fingers = e.originalEvent.touches.length;
-        $(this).data('lastTouch', t2);
-        if (!dt || dt > 500 || fingers > 1) return; // not double-tap
+function preventZoom(e) {
+  var t2 = e.timeStamp;
+  var t1 = e.currentTarget.dataset.lastTouch || t2;
+  var dt = t2 - t1;
+  var fingers = e.touches.length;
+  e.currentTarget.dataset.lastTouch = t2;
 
-        e.preventDefault(); // double tap - prevent the zoom
-        // also synthesize click events we just swallowed up
-        $(this).trigger('click').trigger('click');
-      });
-  };
-})(jQuery);
+  if (!dt || dt > 500 || fingers > 1) return; // not double-tap
+
+  e.preventDefault();
+  e.target.click();
+}
