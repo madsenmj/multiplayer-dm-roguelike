@@ -100,8 +100,8 @@ var beginGame = function(){
     startY,
     distX,
     distY,
-    threshold = 150, //required min distance traveled to be considered swipe
-    restraint = 100, // maximum distance allowed at the same time in perpendicular direction
+    threshold = 50, //required min distance traveled to be considered swipe
+    restraint = 10, // maximum distance allowed at the same time in perpendicular direction
     allowedTime = 300, // maximum time allowed to travel that distance
     elapsedTime,
     startTime,
@@ -148,6 +148,34 @@ var beginGame = function(){
         e.preventDefault();
     }, false)
   }
+
+
+  // Working with virtual numpad
+  document.getElementById("num1").addEventListener("click", function(){
+    interpCallback(ROT.VK_NUMPAD1);
+  });
+  document.getElementById("num2").addEventListener("click", function(){
+    interpCallback(ROT.VK_NUMPAD2);
+  });
+  document.getElementById("num3").addEventListener("click", function(){
+    interpCallback(ROT.VK_NUMPAD3);
+  });
+  document.getElementById("num4").addEventListener("click", function(){
+    interpCallback(ROT.VK_NUMPAD4);
+  });
+  document.getElementById("num6").addEventListener("click", function(){
+    interpCallback(ROT.VK_NUMPAD6);
+  });
+  document.getElementById("num7").addEventListener("click", function(){
+    interpCallback(ROT.VK_NUMPAD7);
+  });
+  document.getElementById("num8").addEventListener("click", function(){
+    interpCallback(ROT.VK_NUMPAD8);
+  });
+  document.getElementById("num9").addEventListener("click", function(){
+    interpCallback(ROT.VK_NUMPAD9);
+  });
+
 
 
 };
