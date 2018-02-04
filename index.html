@@ -16,7 +16,7 @@
         #messages { list-style-type: none; margin: 0; padding: 0; overflow-y: scroll;}
         #messages li { padding: 5px 10px; }
         #messages li:nth-child(odd) { background: rgb(255,255,100); }
-        #keypad{width:300px; height:300px; float:right;}
+        #keypad{width:120px; height:120px; float:right;}
         .row {
         width: 100%;
         height: 33%;
@@ -30,10 +30,13 @@
         float: left;
         }
         .button {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
             background-color: rgb(40, 4, 107); /* Green */
             border: none;
             color: white;
-            padding: 32px 32px;
+            padding: 10px 10px;
             text-align: center;
             text-decoration: none;
             display: inline-block;
