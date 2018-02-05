@@ -17,6 +17,7 @@
     "jade": "~1.11.0",
     "morgan": "~1.9.0",
     "randomcolor": "^0.5.3",
+    "rot-js": "^0.6.5",
     "serve-favicon": "~2.4.5",
     "socket.io": "^2.0.4"
   },
