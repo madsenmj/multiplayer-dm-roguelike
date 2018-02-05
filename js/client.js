@@ -9,6 +9,7 @@ var beginGame = function(){
     width: ROT.DEFAULT_WIDTH,
     height: ROT.DEFAULT_HEIGHT,
     fontSize: 18,
+    spacing:2,
     forceSquareRatio:true
   }
   var display = new ROT.Display(options);
@@ -23,16 +24,19 @@ var beginGame = function(){
 
 
   function printTile(tile){
-    display.draw(tile.x, tile.y, tile.ch, tile.co);
+    display.draw(tile.x, tile.y, tile.ch, tile.fc, tile.bg);
   }
 
   socket.on('state', function(tiles){
+      
       display.clear();
       //console.log(tiles);
+      //console.log('Drawing...');
       for (var id in tiles){
           var tile = tiles[id];
           printTile(tile);
       }
+      //console.log('Done.')
   });
 
 
